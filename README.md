@@ -4,5 +4,5 @@ Benchimpo
 Build
 -----
 ```sh
-ghc -Wall -O2 --make src/benchimpo.hs
+ghc -Wall -O2 -isrc --make src/benchimpo.hs
 ```
