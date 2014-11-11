@@ -93,5 +93,5 @@ runScenario sc = do
 
 run :: [Scenario] -> IO [BmResult]
 run = (>>= mapM takeMVar) . mapM execScenario
-  where failResult = defaultBmResult { bmFailCount = 1 }
+  where failResult = defaultBmResult { bmFailCount = 1, bmReqCount = 1 }
         execScenario sc = mvarForkIOGuard (runScenario sc) failResult
