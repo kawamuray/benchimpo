@@ -39,12 +39,17 @@ foldBmResult brs = foldl addBmResult defaultBmResult effects
   where effects = filter ((/= 0) . bmReqCount) brs
 
 bmMeanElapsed :: BmResult -> Double
-bmMeanElapsed br = total / nreqs
+bmMeanElapsed br
+  | nreqs == 0 = 0
+  | otherwise = total / nreqs
   where total = bmTotalElapsed br
         nreqs = fromIntegral (bmReqCount br - bmFailCount br)
 
 bmReqPerSec :: BmResult -> Double
-bmReqPerSec br = 1 / bmMeanElapsed br
+bmReqPerSec br
+  | elapsed == 0 = 0
+  | otherwise = 1 / elapsed
+  where elapsed = bmMeanElapsed br
 
 measureTime :: IO a -> IO (Double, a)
 measureTime fn = do
