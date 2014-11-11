@@ -15,15 +15,16 @@ import Benchimpo.Util ( secsToMicroSecs
 bmAtom :: IO (Double, Bool) -> IO BmResult
 bmAtom fn = do
   (t, success) <- fn
+  let succOrFail a b
+        | success = a
+        | otherwise = b
   return BmResult
     { bmReqCount     = 1
-    , bmTotalElapsed = t
-    , bmMaxElapsed   = t
-    , bmMinElapsed   = t
-    , bmFailCount    = fcnt success
+    , bmTotalElapsed = succOrFail t 0
+    , bmMaxElapsed   = succOrFail t 0
+    , bmMinElapsed   = succOrFail t 0
+    , bmFailCount    = succOrFail 0 1
     }
-  where fcnt True = 0
-        fcnt False = 1
 
 doRequest :: Scenario -> MVar BmResult -> IO ()
 doRequest sc mvar = do
