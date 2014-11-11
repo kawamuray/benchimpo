@@ -18,7 +18,7 @@ data Options = Options
   , optTimeout     :: Int
   , optClock       :: Double
   , optClockCount  :: Int
-  , optOutFile     :: Maybe String
+  , optOutFile     :: String
   , optHttpHeader  :: [String]
   , optHttpMethod  :: String
   , optFormData    :: [String]
@@ -32,7 +32,7 @@ defaultOptions = Options
   , optTimeout     = 1
   , optClock       = 1
   , optClockCount  = 1
-  , optOutFile     = Nothing
+  , optOutFile     = "/dev/null"
   , optHttpHeader  = []
   , optHttpMethod  = "GET"
   , optFormData    = []
@@ -60,7 +60,7 @@ optionSpecs =
       (ReqArg (\c opts -> opts { optClock = read c :: Double }) "CLOCK")
       "clock for this scenario"
   , Option ['o'] ["output"]
-      (ReqArg (\o opts -> opts { optOutFile = Just o }) "FILE")
+      (ReqArg (\o opts -> opts { optOutFile = o }) "FILE")
       "path for file to write result of this scenario"
   , Option ['H'] ["header"]
       (ReqArg (\h opts -> opts { optHttpHeader = optHttpHeader opts ++ [h] }) "HEADER: VALUE")
@@ -111,9 +111,8 @@ splitArgs args = trim $ Split.split (Split.keepDelimsL matchUrl) (trim args)
   where matchUrl = Split.whenElt (\x -> head x == '@')
         trim = filter (not . null)
 
-mkScenarioWriter :: Maybe String -> IO Writer
-mkScenarioWriter Nothing = fail "Option '-o' must supplied for all scenario"
-mkScenarioWriter (Just path) = do
+mkScenarioWriter :: String -> IO Writer
+mkScenarioWriter path = do
   fh <- openFile path WriteMode
   hSetBuffering fh NoBuffering
   return Writer { wrtFh = fh }
