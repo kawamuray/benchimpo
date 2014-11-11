@@ -3,6 +3,7 @@ module Benchimpo.Engine
   ) where
 
 import Control.Concurrent
+import Control.Exception
 import Control.Monad (liftM)
 import Benchimpo.Benchmark
 import Benchimpo.Http
@@ -28,7 +29,11 @@ bmAtom fn = do
 
 doRequest :: Scenario -> MVar BmResult -> IO ()
 doRequest sc mvar = do
-  br0 <- bmAtom $ measureTime $ doGet (scReqTimeout sc) (scUrl sc)
+  br0 <- bmAtom (measureTime $ doGet (scReqTimeout sc) (scUrl sc))
+         `catch`
+         (\e -> do
+            print (e :: SomeException)
+            return $ defaultBmResult { bmFailCount = 1, bmReqCount = 1 })
   brs <- takeMVar mvar
   putMVar mvar $ addBmResult br0 brs
 
